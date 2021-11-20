@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kvstore-deployment
+  namespace: default
+  labels:
+    app: kv-store
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kv-store
+  template:
+    metadata:
+      labels:
+        app: kv-store
+    spec:
+      containers:
+      - name: kvstore
+        image: importhuman/kv-store
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kvstore-svc
+  namespace: default
+spec:
+  selector:
+    app: kv-store
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kvstore-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kvstore-svc
+            port:
+              number: 80
