@@ -85,7 +85,7 @@ func TestCheckGetHandler(t *testing.T) {
 		// If test should fail, but it passes
 		if rr.Code == http.StatusOK && !tc.pass {
 			t.Errorf("handler should have failed on routeVariable %s: got %v want %v",
-				tc.key, rr.Code, http.StatusOK)
+				tc.key, rr.Code, http.StatusBadRequest)
 		}
 
 		// Compare expected and received values
