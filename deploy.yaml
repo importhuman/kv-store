@@ -20,6 +20,19 @@ spec:
         image: importhuman/kv-store
         ports:
         - containerPort: 8080
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sleep", "15"]
+        readinessProbe:
+          httpGet:
+             path: /
+             port: 8080
+          initialDelaySeconds: 2
+          periodSeconds: 5
+          successThreshold: 1
+      terminationGracePeriodSeconds: 45
+        
 ---
 apiVersion: v1
 kind: Service
