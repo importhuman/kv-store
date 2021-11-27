@@ -14,11 +14,11 @@ import (
 func TestCheckSetHandler(t *testing.T) {
 	// Create request to pass to handler (serves as "r *http.Request" in the test)
 	data := strings.NewReader(`{"abc-1":"one"}`)
-	req, err := http.NewRequest("POST", "/search", data)
-	req.Header.Set("Content-Type", "application/json")
+	req, err := http.NewRequest("POST", "/set", data)
 	if err != nil {
 		t.Fatal(err)
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	// Create a ResponseRecorder to record the response.
 	// (This will serve as the "w http.ResponseWriter" in the test.)
@@ -57,13 +57,13 @@ func TestCheckGetHandler(t *testing.T) {
 		{"xyz-4", 5, false},
 	}
 
-	// send set requests to initialize kv store
+	// send set request to initialize kv store
 	data := strings.NewReader(`{"abc-1":1,"abc-2":2,"xyz-1":"three","xyz-2":4}`)
-	req, err := http.NewRequest("POST", "/search", data)
-	req.Header.Set("Content-Type", "application/json")
+	req, err := http.NewRequest("POST", "/set", data)
 	if err != nil {
 		t.Fatal(err)
 	}
+	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Set)
 	handler.ServeHTTP(rr, req)
@@ -82,6 +82,11 @@ func TestCheckGetHandler(t *testing.T) {
 		r.HandleFunc("/get/{key}", Get)
 		r.ServeHTTP(rr, req)
 
+		// If test should pass, but it fails
+		if rr.Code != http.StatusOK && tc.pass {
+			t.Errorf("handler returned wrong status code: got %v want %v", rr.Code, http.StatusOK)
+		}
+
 		// If test should fail, but it passes
 		if rr.Code == http.StatusOK && !tc.pass {
 			t.Errorf("handler should have failed on routeVariable %s: got %v want %v",
@@ -94,6 +99,39 @@ func TestCheckGetHandler(t *testing.T) {
 		if received != expected && tc.pass {
 			t.Errorf("handler returned unexpected body: got %v want %v", received, expected)
 		}
+	}
+}
+
+// Test for "GetAll" API
+func TestCheckGetAllHandler(t *testing.T) {
+	// send set request to initialize kv store
+	data := strings.NewReader(`{"abc-1":1,"abc-2":2,"xyz-1":"three","xyz-2":4}`)
+	req, err := http.NewRequest("POST", "/set", data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+	setHandler := http.HandlerFunc(Set)
+	setHandler.ServeHTTP(rr, req)
+
+	// send get request at "/" endpoint for all keys and values
+	req, err = http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	getHandler := http.HandlerFunc(GetAll)
+	getHandler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	// compare expected and received body
+	expected := `{"abc-1":1,"abc-2":2,"xyz-1":"three","xyz-2":4}`
+	if strings.TrimSpace(rr.Body.String()) != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
 }
 
@@ -113,11 +151,11 @@ func TestCheckSearchHandler(t *testing.T) {
 
 	// send set requests to initialize kv store
 	data := strings.NewReader(`{"abc-1":1,"abc-2":2,"xyz-1":"three","xyz-2":4}`)
-	req, err := http.NewRequest("POST", "/search", data)
-	req.Header.Set("Content-Type", "application/json")
+	req, err := http.NewRequest("POST", "/set", data)
 	if err != nil {
 		t.Fatal(err)
 	}
+	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Set)
 	handler.ServeHTTP(rr, req)
