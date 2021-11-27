@@ -42,11 +42,19 @@ Alternatively, you can simply pull the docker image (the `latest` image tag is r
 
 - Fork and clone this repository (or simply copy the `deploy.yaml` file and save it).
 - Create a new k3d cluster with `k3d cluster create kvstore -p "8080:80@loadbalancer"`.
-(k3s [deploys traefik](https://k3d.io/v5.0.1/usage/exposing_services/) as the default ingress controller. Coupled with the port mapping, this does not require any further configuration for running on k3d. The deployment and configuration have not been tested for other Kubernetes distributions.)
 - Run `kubectl apply -f deploy.yaml`.
+(k3s [deploys traefik](https://k3d.io/v5.0.1/usage/exposing_services/) as the default ingress controller. Coupled with the port mapping, this does not require any further configuration for running the service on k3d. The deployment and configuration have not been tested for other Kubernetes distributions.)
 
-The service will run on port 8080 in this case.
+(Please run the service on port 8080, as the deployment file has readiness probe configured for the port.)
+
+### Testing for zero downtime
+
+Testing was done via the CLI tool for [Fortio](https://fortio.org/). When the deployment was updated to use an older image (`importhuman/kv-store:1.1`), the following command was run:
+`fortio load -c 50 -qps 500 -t 180s "localhost:8080"`
+
+Status 200 response was obtained for 100% of the requests. 
 
 ### Known issues
 
 - While running on Kubernetes, the deployment creates 3 replicas of the key-value store service. These replicas do not have a shared memory, and so have different key-value pair stores, instead of all replicas utilizing a common store.
+- Key-value pairs are not stored anywhere outside the pod, thus, while requests can be made consistently without downtime, any stored values are lost when a pod restarts or goes down.
