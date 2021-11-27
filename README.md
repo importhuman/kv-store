@@ -7,8 +7,8 @@ This is an in-memory key-value store HTTP API service, with the following endpoi
 - `/search` : GET method. Searches for keys using prefix or suffix filters.
 
 Assume you have the following keys in the store: abc-1, abc-2, xyz-1, xyz-2
-`/search?prefix=abc` would return `abc-1` and `abc-2`.
-`/search?suffix=-1` would return `abc-1` and `xyz-1`.
+  + `/search?prefix=abc` would return `abc-1` and `abc-2`.
+  + `/search?suffix=-1` would return `abc-1` and `xyz-1`.
 
 - `/` : GET method. Returns all the key-value pairs in the in-memory store. Also useful for readiness probes and load testing. 
 
@@ -54,7 +54,7 @@ Testing was done via the CLI tool for [Fortio](https://fortio.org/). When the de
 
 Status 200 response was obtained for 100% of the requests. 
 
-### Known issues
+### Known issues while running on Kubernetes
 
-- While running on Kubernetes, the deployment creates 3 replicas of the key-value store service. These replicas do not have a shared memory, and so have different key-value pair stores, instead of all replicas utilizing a common store.
+- The deployment creates 3 replicas of the key-value store service. These replicas do not have a shared memory, and so have different key-value pair stores, instead of all replicas utilizing a common store.
 - Key-value pairs are not stored anywhere outside the pod, thus, while requests can be made consistently without downtime, any stored values are lost when a pod restarts or goes down.
