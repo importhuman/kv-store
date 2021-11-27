@@ -6,9 +6,9 @@ This is an in-memory key-value store HTTP API service, with the following endpoi
 
 - `/search` : GET method. Searches for keys using prefix or suffix filters.
 
-Assume you have the following keys in the store: abc-1, abc-2, xyz-1, xyz-2
-    + `/search?prefix=abc` would return `abc-1` and `abc-2`.
-    + `/search?suffix=-1` would return `abc-1` and `xyz-1`.
+Assume you have the following keys in the store: abc-1, abc-2, xyz-1, xyz-2.    
+    - `/search?prefix=abc` would return `abc-1` and `abc-2`.    
+    - `/search?suffix=-1` would return `abc-1` and `xyz-1`.
 
 - `/` : GET method. Returns all the key-value pairs in the in-memory store. Also useful for readiness probes and load testing. 
 
