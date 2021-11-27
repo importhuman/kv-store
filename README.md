@@ -49,12 +49,14 @@ Alternatively, you can simply pull the docker image (the `latest` image tag is r
 
 ### Testing for zero downtime
 
-Testing was done via the CLI tool for [Fortio](https://fortio.org/). When the deployment was updated to use an older image (`importhuman/kv-store:1.1`), the following command was run:
+Testing was done via the CLI tool for [Fortio](https://fortio.org/). Just before the deployment image was updated from `importhuman/kv-store` to use a slightly different image (`importhuman/kv-store:1.3`), the following command was run:
 ```
-fortio load -c 50 -qps 500 -t 180s "localhost:8080"
+fortio load -a -c 50 -qps 500 -t 180s "localhost:8080"
 ```
 
 Status 200 response was obtained for 100% of the requests. 
+
+The complete logs can be found in `logs.json`.
 
 ### Known issues while running on Kubernetes
 
