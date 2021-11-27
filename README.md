@@ -7,8 +7,8 @@ This is an in-memory key-value store HTTP API service, with the following endpoi
 - `/search` : GET method. Searches for keys using prefix or suffix filters.
 
 Assume you have the following keys in the store: abc-1, abc-2, xyz-1, xyz-2
-  + `/search?prefix=abc` would return `abc-1` and `abc-2`.
-  + `/search?suffix=-1` would return `abc-1` and `xyz-1`.
+    + `/search?prefix=abc` would return `abc-1` and `abc-2`.
+    + `/search?suffix=-1` would return `abc-1` and `xyz-1`.
 
 - `/` : GET method. Returns all the key-value pairs in the in-memory store. Also useful for readiness probes and load testing. 
 
@@ -50,7 +50,9 @@ Alternatively, you can simply pull the docker image (the `latest` image tag is r
 ### Testing for zero downtime
 
 Testing was done via the CLI tool for [Fortio](https://fortio.org/). When the deployment was updated to use an older image (`importhuman/kv-store:1.1`), the following command was run:
-`fortio load -c 50 -qps 500 -t 180s "localhost:8080"`
+```
+fortio load -c 50 -qps 500 -t 180s "localhost:8080"
+```
 
 Status 200 response was obtained for 100% of the requests. 
 
